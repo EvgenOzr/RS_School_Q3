@@ -1,11 +1,9 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import './Card.css';
 import type { cardProps } from '../types/types';
 
 class Card extends Component<cardProps> {
   render() {
-    console.log(this.props);
-
     return (
       <div className="item">
         <div className="item_field">Name - {this.props.card.name}</div>

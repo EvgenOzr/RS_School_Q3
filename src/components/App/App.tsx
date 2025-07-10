@@ -11,6 +11,7 @@ class App extends Component<appState> {
   state = {
     data: [],
     loading: false,
+    noResults: false,
     itemSelected: null,
     apiBase: 'https://swapi.py4e.com/api/people/?search=',
   };
@@ -30,18 +31,17 @@ class App extends Component<appState> {
 
   onUpdateSearch = async (search: string) => {
     try {
-      console.log(search);
-      this.setState({ loading: true });
+      this.setState({ loading: true, itemSelected: null });
       const getSearch = await fetch(`${this.state.apiBase}${search}`);
-      console.log(getSearch);
-
       if (!getSearch.ok) {
         throw new Error('Error in search response');
       }
       const data = await getSearch.json();
-      console.log(data);
-
-      this.setState({ data: data.results, loading: false });
+      if (data.results.length > 0) {
+        this.setState({ data: data.results, noResults: false, loading: false });
+      } else {
+        this.setState({ data: data.results, noResults: true, loading: false });
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       this.setState({ data: [], loading: false });
@@ -57,7 +57,10 @@ class App extends Component<appState> {
       <>
         <h1 className="header">RS School. Task 1</h1>
         <Search onUpdateSearch={this.onUpdateSearch} />
-        {this.state.data.length === 0 && <this.Introdaction />}
+        {this.state.data.length === 0 && !this.state.noResults && (
+          <this.Introdaction />
+        )}
+        {this.state.noResults && <div>Nothing found</div>}
         {!this.state.loading && this.state.data.length > 0 && (
           <Row
             left={

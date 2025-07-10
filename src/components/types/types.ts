@@ -17,6 +17,7 @@ export interface swcharacter {
 export interface appState {
   data: swcharacter[];
   itemSelected: swcharacter | null;
+  noResults: boolean;
   loading: boolean;
   apiBase: string;
 }
