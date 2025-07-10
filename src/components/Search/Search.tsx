@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import './Search.css';
+import type { searchProps } from '../types/types';
 
-class Search extends Component {
+class Search extends Component<searchProps> {
   state = {
     search: '',
   };

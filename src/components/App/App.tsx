@@ -3,10 +3,15 @@ import Search from '../Search/Search';
 import Spinner from '../Spinner/Spinner';
 import { Component } from 'react';
 import CardList from '../CardList/CardList';
+import type { appState, swcharacter } from '../types/types';
+import Row from '../Row/Row';
+import Card from '../Card/Card';
 
-class App extends Component {
+class App extends Component<appState> {
   state = {
-    data: ['1', '2', '3'],
+    data: [],
+    loading: false,
+    itemSelected: null,
     apiBase: 'https://swapi.py4e.com/api/people/?search=',
   };
 
@@ -25,11 +30,26 @@ class App extends Component {
 
   onUpdateSearch = async (search: string) => {
     try {
-      const getSearh = await fetch(`${this.state.apiBase}${search}`);
-      this.setState({ data: getSearh });
-    } catch {
-    } finally {
+      console.log(search);
+      this.setState({ loading: true });
+      const getSearch = await fetch(`${this.state.apiBase}${search}`);
+      console.log(getSearch);
+
+      if (!getSearch.ok) {
+        throw new Error('Error in search response');
+      }
+      const data = await getSearch.json();
+      console.log(data);
+
+      this.setState({ data: data.results, loading: false });
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      this.setState({ data: [], loading: false });
     }
+  };
+
+  onItemSelected = (character: swcharacter) => {
+    this.setState({ itemSelected: character });
   };
 
   render() {
@@ -37,9 +57,21 @@ class App extends Component {
       <>
         <h1 className="header">RS School. Task 1</h1>
         <Search onUpdateSearch={this.onUpdateSearch} />
-        <CardList searchList={this.state.data} />
-        {/* <Introdaction/> */}
-        {/* <Spinner/> */}
+        {this.state.data.length === 0 && <this.Introdaction />}
+        {!this.state.loading && this.state.data.length > 0 && (
+          <Row
+            left={
+              <CardList
+                data={this.state.data}
+                onItemSelected={this.onItemSelected}
+              />
+            }
+            right={
+              this.state.itemSelected && <Card card={this.state.itemSelected} />
+            }
+          />
+        )}
+        {this.state.loading && <Spinner />}
       </>
     );
   }

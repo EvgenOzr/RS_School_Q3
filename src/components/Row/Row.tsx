@@ -1,17 +1,16 @@
-import React, { ReactNode } from 'react';
+import { Component } from 'react';
+import type { rowProps } from '../types/types';
+import './Row.css';
 
-interface Row {
-  left: ReactNode;
-  right: ReactNode;
+class Row extends Component<rowProps> {
+  render() {
+    return (
+      <div className="row">
+        <div className="">{this.props.left}</div>
+        <div className="">{this.props.right}</div>
+      </div>
+    );
+  }
 }
-
-const Row = ({ left, right }: Row) => {
-  return (
-    <div className="row mb6 justify-content-around">
-      <div className="col-md-4">{left}</div>
-      <div className="col-md-4">{right}</div>
-    </div>
-  );
-};
 
 export default Row;
