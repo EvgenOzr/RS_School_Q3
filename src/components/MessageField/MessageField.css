@@ -1,12 +1,12 @@
 .message_field {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
 }
 .message_title {
-    margin: 10px 0 10px 0;
+  margin: 10px 0 10px 0;
 }
 .message_text {
-    font-size: 18px;
+  font-size: 18px;
 }

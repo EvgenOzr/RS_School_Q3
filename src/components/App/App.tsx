@@ -53,8 +53,17 @@ class App extends Component<object, appState> {
       <>
         <h1 className="header">RS School. Task 1</h1>
         <Search onUpdateSearch={this.onUpdateSearch} />
-        {this.state.data.length === 0 && !this.state.noResults && <MessageField title={'Welcome to search App(Star Wars)'} text={'You can find characters from StarWars, just type in search field.'} />}
-        {this.state.noResults && <MessageField title={'Sorry'} text={'Nothing found!'}/>}
+        {this.state.data.length === 0 && !this.state.noResults && (
+          <MessageField
+            title={'Welcome to search App(Star Wars)'}
+            text={
+              'You can find characters from StarWars, just type in search field.'
+            }
+          />
+        )}
+        {this.state.noResults && (
+          <MessageField title={'Sorry'} text={'Nothing found!'} />
+        )}
         {!this.state.loading && this.state.data.length > 0 && (
           <Row
             left={
@@ -69,7 +78,9 @@ class App extends Component<object, appState> {
           />
         )}
         {this.state.loading && <Spinner />}
-        <button className='triggerButton' onClick={this.triggerError}>Throw Error</button>
+        <button className="triggerButton" onClick={this.triggerError}>
+          Throw Error
+        </button>
       </>
     );
   }
