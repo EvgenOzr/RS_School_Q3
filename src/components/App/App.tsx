@@ -6,27 +6,16 @@ import CardList from '../CardList/CardList';
 import type { appState, swcharacter } from '../types/types';
 import Row from '../Row/Row';
 import Card from '../Card/Card';
+import MessageField from '../MessageField/MessageField';
 
-class App extends Component<appState> {
+class App extends Component<object, appState> {
   state = {
     data: [],
     loading: false,
+    hasError: false,
     noResults: false,
     itemSelected: null,
     apiBase: 'https://swapi.py4e.com/api/people/?search=',
-  };
-
-  Introdaction = () => {
-    return (
-      <div>
-        <h3>Welcome to search App(Star Wars)</h3>
-        <section>
-          <div>
-            You can find characters from StarWars, just type in search field.
-          </div>
-        </section>
-      </div>
-    );
   };
 
   onUpdateSearch = async (search: string) => {
@@ -52,15 +41,20 @@ class App extends Component<appState> {
     this.setState({ itemSelected: character });
   };
 
+  triggerError = () => {
+    this.setState({ hasError: true });
+  };
+
   render() {
+    if (this.state.hasError) {
+      throw new Error('Это тестовая ошибка из компонента App!');
+    }
     return (
       <>
         <h1 className="header">RS School. Task 1</h1>
         <Search onUpdateSearch={this.onUpdateSearch} />
-        {this.state.data.length === 0 && !this.state.noResults && (
-          <this.Introdaction />
-        )}
-        {this.state.noResults && <div>Nothing found</div>}
+        {this.state.data.length === 0 && !this.state.noResults && <MessageField title={'Welcome to search App(Star Wars)'} text={'You can find characters from StarWars, just type in search field.'} />}
+        {this.state.noResults && <MessageField title={'Sorry'} text={'Nothing found!'}/>}
         {!this.state.loading && this.state.data.length > 0 && (
           <Row
             left={
@@ -75,6 +69,7 @@ class App extends Component<appState> {
           />
         )}
         {this.state.loading && <Spinner />}
+        <button className='triggerButton' onClick={this.triggerError}>Throw Error</button>
       </>
     );
   }

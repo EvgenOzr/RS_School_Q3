@@ -17,6 +17,7 @@ export interface swcharacter {
 export interface appState {
   data: swcharacter[];
   itemSelected: swcharacter | null;
+  hasError: boolean;
   noResults: boolean;
   loading: boolean;
   apiBase: string;
@@ -34,6 +35,10 @@ type cardListProps = {
 
 export interface cardProps {
   card: swcharacter;
+}
+export interface messageProps {
+  title: string;
+  text: string;
 }
 
 export type { searchProps, cardListProps };

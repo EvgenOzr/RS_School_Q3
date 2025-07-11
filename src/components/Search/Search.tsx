@@ -13,6 +13,7 @@ class Search extends Component<searchProps> {
       this.setState({
         search: saveSearch,
       });
+      this.props.onUpdateSearch(this.state.search)
     }
   }
 

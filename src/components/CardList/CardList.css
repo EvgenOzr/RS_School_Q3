@@ -1,4 +1,4 @@
-.search_list {
+.card_list {
   display: flex;
   padding: 10px;
   flex-direction: column;
@@ -6,12 +6,12 @@
   background-color: #fff;
   border-radius: 5px;
 }
-.search_list_item {
+.card_list_item {
   padding: 5px;
   font-size: 20px;
   cursor: pointer;
   border-radius: 5px;
 }
-.search_list_item:hover {
+.card_list_item:hover {
   background-color: #e77474;
 }
