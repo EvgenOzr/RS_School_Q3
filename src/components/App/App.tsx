@@ -16,12 +16,14 @@ class App extends Component<object, appState> {
     noResults: false,
     itemSelected: null,
     apiBase: 'https://swapi.py4e.com/api/people/?search=',
+    charactersApiBase: 'https://swapi.py4e.com/api/people/',
   };
 
   onUpdateSearch = async (search: string) => {
     try {
       this.setState({ loading: true, itemSelected: null });
-      const getSearch = await fetch(`${this.state.apiBase}${search}`);
+      const api = search ? this.state.apiBase : this.state.charactersApiBase;
+      const getSearch = await fetch(`${api}${search}`);
       if (!getSearch.ok) {
         throw new Error('Error in search response');
       }
