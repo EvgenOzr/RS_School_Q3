@@ -7,7 +7,7 @@ class Card extends Component<cardProps> {
     return (
       <div className="item">
         <div className="item_field">Name - {this.props.card.name}</div>
-        <div className="item_field">
+        <div className="item_field" data-testid="birth-year-field">
           Birth year - {this.props.card.birth_year}
         </div>
         <div className="item_field">Height - {this.props.card.height}</div>

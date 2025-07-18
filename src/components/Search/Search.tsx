@@ -27,8 +27,9 @@ class Search extends Component<searchProps> {
 
   onUpdateSearch = () => {
     const { search } = this.state;
-    localStorage.setItem('search', search.trim());
-    this.props.onUpdateSearch(search);
+    const trimmedSearch = search.trim();
+    localStorage.setItem('search', trimmedSearch);
+    this.props.onUpdateSearch(trimmedSearch);
   };
 
   render() {
