@@ -1,0 +1,13 @@
+.item {
+  display: flex;
+  padding: 10px;
+  gap: 10px;
+  flex-direction: column;
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+.item_field {
+  padding: 5px;
+  font-size: 20px;
+}
