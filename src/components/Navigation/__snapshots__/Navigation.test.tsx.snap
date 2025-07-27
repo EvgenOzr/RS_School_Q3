@@ -1,0 +1,24 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Navigation Component > matches snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="_navigation_0efb96"
+  >
+    <a
+      class="_item_0efb96"
+      data-discover="true"
+      href="/"
+    >
+      Main page
+    </a>
+    <a
+      class="_item_0efb96"
+      data-discover="true"
+      href="/about"
+    >
+      About
+    </a>
+  </div>
+</DocumentFragment>
+`;
