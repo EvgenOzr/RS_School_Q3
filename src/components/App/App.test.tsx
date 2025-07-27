@@ -87,7 +87,7 @@ vi.mock('react-router', async () => {
   };
 });
 
-window.fetch = vi.fn();
+globalThis.fetch = vi.fn();
 
 describe('App Component', () => {
   const mockNavigate = vi.fn();
