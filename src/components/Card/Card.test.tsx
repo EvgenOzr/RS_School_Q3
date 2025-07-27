@@ -40,12 +40,12 @@ describe('Card Component', () => {
   });
 
   test('calls onClose when close button is clicked', () => {
-    const mockOnClose = vi.fn(); // Vitest's mock function
+    const mockOnClose = vi.fn();
     render(
       <Card card={mockCharacter} isClosed={false} onClose={mockOnClose} />
     );
 
     fireEvent.click(screen.getByRole('button', { name: /close/i }));
-    expect(mockOnClose).toHaveBeenCalledOnce(); // Vitest's matcher
+    expect(mockOnClose).toHaveBeenCalledOnce();
   });
 });
