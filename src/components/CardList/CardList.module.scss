@@ -1,17 +1,19 @@
+@use '../../assets/variables.scss' as variables;
 .card_list {
   display: flex;
   padding: 10px;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
   background-color: #fff;
   border-radius: 5px;
 }
-.card_list_item {
-  padding: 5px;
+.list_item {
+  padding: 1px;
   font-size: 20px;
   cursor: pointer;
   border-radius: 5px;
+  transition: 0.5s all;
 }
-.card_list_item:hover {
-  background-color: #e77474;
+.list_item:hover {
+  background-color: variables.$hover_color;
 }

@@ -1,16 +1,17 @@
-import { Component } from 'react';
 import type { messageProps } from '../types/types';
-import './MessageField.css';
+import styles from './MessageField.module.scss';
 
-class MessageField extends Component<messageProps> {
-  render() {
-    return (
-      <div className="message_field">
-        <h3 className="message_title">{this.props.title}</h3>
-        <div className="message_text">{this.props.text}</div>
+const MessageField = ({ title, text }: messageProps) => {
+  return (
+    <div className={styles.field} data-testid="message-field">
+      <h3 className={styles.title} data-testid="message-title">
+        {title}
+      </h3>
+      <div className={styles.text} data-testid="message-text">
+        {text}
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 export default MessageField;

@@ -1,16 +1,13 @@
-import { Component } from 'react';
 import type { rowProps } from '../types/types';
-import './Row.css';
+import styles from './Row.module.css';
 
-class Row extends Component<rowProps> {
-  render() {
-    return (
-      <div className="row">
-        <div className="">{this.props.left}</div>
-        <div className="">{this.props.right}</div>
-      </div>
-    );
-  }
-}
+const Row = ({ left, right }: rowProps) => {
+  return (
+    <div className={styles.row}>
+      <div className="row-left">{left}</div>
+      <div className="row-right">{right}</div>
+    </div>
+  );
+};
 
 export default Row;

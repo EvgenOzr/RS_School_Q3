@@ -1,68 +1,51 @@
-import { render, screen } from '@testing-library/react';
+import { describe, test, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import Card from './Card';
-import { describe, it, expect } from 'vitest';
+import type { character } from '../types/types';
+
+const mockCharacter: character = {
+  id: 1,
+  name: 'Rick Sanchez',
+  status: 'Alive',
+  species: 'Human',
+  gender: 'Male',
+  url: 'https://rickandmortyapi.com/api/character/1',
+  image: 'https://rickandmortyapi.com/api/character/avatar/1.jpeg',
+};
 
 describe('Card Component', () => {
-  const mockCharacter = {
-    name: 'Luke Skywalker',
-    height: '172',
-    mass: '77',
-    hair_color: 'blond',
-    skin_color: 'fair',
-    eye_color: 'blue',
-    birth_year: '19BBY',
-    gender: 'male',
-    url: 'https://swapi.py4e.com/api/people/1/',
-  };
+  test('renders card with correct data', () => {
+    render(<Card card={mockCharacter} isClosed={false} onClose={() => {}} />);
 
-  it('has correct DOM structure', () => {
-    render(<Card card={mockCharacter} />);
-    expect(document.querySelector('.item')).toBeInTheDocument();
-    expect(document.querySelectorAll('.item_field')).toHaveLength(6);
+    expect(screen.getByText(/Name - Rick Sanchez/i)).toBeInTheDocument();
+    expect(screen.getByText(/Status - Alive/i)).toBeInTheDocument();
+    expect(screen.getByAltText('image')).toHaveAttribute(
+      'src',
+      mockCharacter.image
+    );
   });
 
-  it('renders character details correctly', () => {
-    render(<Card card={mockCharacter} />);
-
-    expect(
-      screen.getByText(`Name - ${mockCharacter.name}`)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(`Birth year - ${mockCharacter.birth_year}`)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(`Height - ${mockCharacter.height}`)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(`Gender - ${mockCharacter.gender}`)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(`Eye color - ${mockCharacter.eye_color}`)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(`Mass - ${mockCharacter.mass}`)
-    ).toBeInTheDocument();
+  test('does not render when card is null', () => {
+    const { container } = render(
+      <Card card={null} isClosed={false} onClose={() => {}} />
+    );
+    expect(container.firstChild).toBeNull();
   });
 
-  it('renders all fields even with empty values', () => {
-    const emptyCharacter = {
-      name: 'Unknown',
-      height: '',
-      mass: '',
-      hair_color: '',
-      skin_color: '',
-      eye_color: '',
-      birth_year: '',
-      gender: '',
-      url: '',
-    };
+  test('does not render when isClosed=true', () => {
+    const { container } = render(
+      <Card card={mockCharacter} isClosed={true} onClose={() => {}} />
+    );
+    expect(container.firstChild).toBeNull();
+  });
 
-    render(<Card card={emptyCharacter} />);
+  test('calls onClose when close button is clicked', () => {
+    const mockOnClose = vi.fn(); // Vitest's mock function
+    render(
+      <Card card={mockCharacter} isClosed={false} onClose={mockOnClose} />
+    );
 
-    expect(screen.getByText('Name - Unknown')).toBeInTheDocument();
-    expect(screen.getByText(/Birth year -/i)).toBeInTheDocument();
-    expect(screen.getByText(/Height -/i)).toBeInTheDocument();
-    expect(screen.getByText(/Gender -/i)).toBeInTheDocument();
-    expect(screen.getByText(/Birth year -/i)).toHaveClass('item_field');
+    fireEvent.click(screen.getByRole('button', { name: /close/i }));
+    expect(mockOnClose).toHaveBeenCalledOnce(); // Vitest's matcher
   });
 });

@@ -1,161 +1,269 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { MemoryRouter, useLocation, useNavigate } from 'react-router';
 import App from './App';
+import type { character } from '../types/types';
+
+vi.mock('../Search/Search', () => ({
+  default: ({
+    onUpdateSearch,
+  }: {
+    onUpdateSearch: (search: string) => void;
+  }) => (
+    <div>
+      <input
+        data-testid="search-input"
+        onChange={(e) => onUpdateSearch(e.target.value)}
+      />
+      <button data-testid="search-button">Search</button>
+    </div>
+  ),
+}));
+
+vi.mock('../Spinner/Spinner', () => ({
+  default: () => <div data-testid="spinner">Loading...</div>,
+}));
+
+vi.mock('../CardList/CardList', () => ({
+  default: ({
+    data,
+    onItemSelected,
+  }: {
+    data: character[];
+    onItemSelected: (item: character) => void;
+  }) => (
+    <div data-testid="card-list">
+      {data.map((item) => (
+        <div
+          key={item.id}
+          data-testid={`character-${item.id}`}
+          onClick={() => onItemSelected(item)}
+        >
+          {item.name}
+        </div>
+      ))}
+    </div>
+  ),
+}));
+
+vi.mock('../Card/Card', () => ({
+  default: ({
+    card,
+    isClosed,
+    onClose,
+  }: {
+    card: character;
+    isClosed: boolean;
+    onClose: () => void;
+  }) => (
+    <div data-testid="card">
+      {!isClosed && card && (
+        <>
+          <div>{card.name}</div>
+          <button data-testid="close-card" onClick={onClose}>
+            Close
+          </button>
+        </>
+      )}
+    </div>
+  ),
+}));
+
+vi.mock('../MessageField/MessageField', () => ({
+  default: ({ title, text }: { title: string; text: string }) => (
+    <div data-testid="message-field">
+      <h3>{title}</h3>
+      <p>{text}</p>
+    </div>
+  ),
+}));
+
+vi.mock('react-router', async () => {
+  const actual = await vi.importActual('react-router');
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+    useLocation: vi.fn(),
+  };
+});
+
+window.fetch = vi.fn();
 
 describe('App Component', () => {
-  const mockCharacter = {
-    name: 'Luke Skywalker',
-    height: '172',
-    mass: '77',
-    hair_color: 'blond',
-    skin_color: 'fair',
-    eye_color: 'blue',
-    birth_year: '19BBY',
-    gender: 'male',
+  const mockNavigate = vi.fn();
+  const mockLocation = {
+    search: '',
+    pathname: '/',
+    state: null,
+    key: '',
+    hash: '',
   };
 
   beforeEach(() => {
-    vi.spyOn(window, 'fetch').mockImplementation(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ results: [] }),
-      } as Response)
-    );
+    vi.mocked(useNavigate).mockReturnValue(mockNavigate);
+    vi.mocked(useLocation).mockReturnValue(mockLocation);
+    vi.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
+    vi.spyOn(Storage.prototype, 'setItem').mockReturnValue();
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
+  });
+
+  it('renders without crashing', () => {
+    render(
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>
+    );
+    expect(screen.getByText('RS School. Task 3')).toBeInTheDocument();
   });
 
   it('shows spinner when loading', async () => {
-    vi.spyOn(window, 'fetch').mockImplementationOnce(
+    vi.mocked(fetch).mockImplementationOnce(
       () =>
-        new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve({
-                ok: true,
-                json: () => Promise.resolve({ results: [mockCharacter] }),
-              } as Response),
-            200
-          )
-        )
+        new Promise((resolve) => {
+          setTimeout(() => resolve(new Response()), 100);
+        })
     );
 
-    render(<App />);
-    const input = screen.getByRole('textbox');
-    await userEvent.type(input, 'luke');
+    render(
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>
+    );
 
     expect(screen.getByTestId('spinner')).toBeInTheDocument();
-
-    await waitFor(() => {
-      expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
-    });
   });
 
-  it('displays search results', async () => {
-    vi.spyOn(window, 'fetch').mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ results: [mockCharacter] }),
+  it('displays no results message when no data', async () => {
+    const mockData = {
+      results: null,
+      info: { count: 0 },
+    };
+
+    vi.mocked(fetch).mockResolvedValueOnce({
+      json: () => Promise.resolve(mockData),
     } as Response);
 
-    render(<App />);
-    const input = screen.getByRole('textbox');
-    await userEvent.type(input, 'luke');
+    render(
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>
+    );
 
     await waitFor(() => {
-      expect(screen.getByText('Luke Skywalker')).toBeInTheDocument();
-      expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
-    });
-  });
-
-  it('shows "Nothing found!" when no results', async () => {
-    vi.spyOn(window, 'fetch').mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ results: [] }),
-    } as Response);
-
-    render(<App />);
-    const input = screen.getByRole('textbox');
-    await userEvent.type(input, 'nonexistent');
-
-    await waitFor(() => {
+      expect(screen.getByTestId('message-field')).toBeInTheDocument();
       expect(screen.getByText('Nothing found!')).toBeInTheDocument();
-      expect(screen.queryByText('Luke Skywalker')).not.toBeInTheDocument();
     });
   });
 
-  it('displays character details when item is selected', async () => {
-    vi.spyOn(window, 'fetch').mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ results: [mockCharacter] }),
+  it('fetches and displays data correctly', async () => {
+    const mockData = {
+      results: [
+        { id: 1, name: 'Rick Sanchez', status: 'Alive', species: 'Human' },
+        { id: 2, name: 'Morty Smith', status: 'Alive', species: 'Human' },
+      ],
+      info: {
+        count: 2,
+        prev: null,
+        next: 'https://rickandmortyapi.com/api/character/?page=2',
+      },
+    };
+
+    vi.mocked(fetch).mockResolvedValueOnce({
+      json: () => Promise.resolve(mockData),
     } as Response);
 
-    render(<App />);
-    const input = screen.getByRole('textbox');
-    await userEvent.type(input, 'luke');
-
-    await waitFor(async () => {
-      const character = await screen.findByText('Luke Skywalker');
-      fireEvent.click(character);
-
-      expect(
-        screen.getByText(`Gender - ${mockCharacter.gender}`)
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(`Birth year - ${mockCharacter.birth_year}`)
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(`Height - ${mockCharacter.height}`)
-      ).toBeInTheDocument();
-    });
-  });
-
-  it('throws error when trigger button is clicked', async () => {
-    const originalError = console.error;
-    console.error = vi.fn();
-
-    render(<App />);
-    const button = screen.getByText('Throw Error');
-
-    await expect(async () => {
-      await userEvent.click(button);
-    }).rejects.toThrow('Это тестовая ошибка из компонента App!');
-
-    console.error = originalError;
-  });
-
-  it('handles empty search', async () => {
-    const fetchSpy = vi.spyOn(window, 'fetch');
-
-    render(<App />);
-    const input = screen.getByRole('textbox');
-    await userEvent.clear(input);
+    render(
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>
+    );
 
     await waitFor(() => {
-      expect(fetchSpy).toHaveBeenCalledWith(
-        'https://swapi.py4e.com/api/people/'
-      );
+      expect(screen.getByTestId('card-list')).toBeInTheDocument();
+      expect(screen.getByText('Rick Sanchez')).toBeInTheDocument();
+      expect(screen.getByText('Morty Smith')).toBeInTheDocument();
     });
   });
 
-  it('handles API response with not ok status', async () => {
-    vi.spyOn(window, 'fetch').mockResolvedValueOnce({
-      ok: false,
-      status: 404,
-      json: () => Promise.resolve({}),
+  it('handles character selection', async () => {
+    const mockData = {
+      results: [
+        {
+          id: 1,
+          name: 'Rick Sanchez',
+          status: 'Alive',
+          species: 'Human',
+          image: '',
+          gender: 'Male',
+        },
+      ],
+      info: { count: 1, prev: null, next: null },
+    };
+
+    vi.mocked(fetch).mockResolvedValueOnce({
+      json: () => Promise.resolve(mockData),
     } as Response);
 
-    render(<App />);
-    const input = screen.getByRole('textbox');
-    await userEvent.type(input, 'badrequest');
+    render(
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>
+    );
 
     await waitFor(() => {
-      expect(screen.queryByTestId('spinner')).not.toBeInTheDocument();
-      expect(
-        screen.getByText('Welcome to search App(Star Wars)')
-      ).toBeInTheDocument();
+      fireEvent.click(screen.getByText('Rick Sanchez'));
+      expect(mockNavigate).toHaveBeenCalledWith('/?search=&page=1&details=1');
+    });
+
+    expect(screen.getByTestId('card')).toBeInTheDocument();
+  });
+
+  it('loads saved search from localStorage on mount', async () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockReturnValue('rick');
+
+    render(
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/?search=rick&page=1');
+    });
+  });
+
+  it('handles fetch error gracefully', async () => {
+    vi.mocked(fetch).mockRejectedValueOnce(new Error('API error'));
+
+    render(
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('message-field')).toBeInTheDocument();
+      expect(screen.getByText('Nothing found!')).toBeInTheDocument();
+    });
+  });
+
+  it('updates search params when search is triggered', async () => {
+    render(
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>
+    );
+
+    fireEvent.change(screen.getByTestId('search-input'), {
+      target: { value: 'morty' },
+    });
+    fireEvent.click(screen.getByTestId('search-button'));
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/?search=morty&page=1');
     });
   });
 });

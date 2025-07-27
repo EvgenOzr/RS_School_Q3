@@ -1,20 +1,10 @@
-.search_container {
+.container {
   height: 35px;
   display: flex;
   justify-content: center;
 }
 
-.search_field {
-  padding-left: 10px;
-  font-size: 15px;
-  height: 100%;
-  min-width: 300px;
-  border: 1px solid black;
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
-}
-
-.search_button {
+.button {
   cursor: pointer;
   width: 100px;
   font-size: 15px;
@@ -25,4 +15,14 @@
   border: 1px solid black;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
+}
+
+.field {
+  padding-left: 10px;
+  font-size: 15px;
+  height: 100%;
+  min-width: 300px;
+  border: 1px solid black;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
 }

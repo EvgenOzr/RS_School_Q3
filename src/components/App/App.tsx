@@ -1,91 +1,142 @@
-import './App.css';
 import Search from '../Search/Search';
 import Spinner from '../Spinner/Spinner';
-import { Component } from 'react';
 import CardList from '../CardList/CardList';
-import type { appState, swcharacter } from '../types/types';
+import type { appState, character } from '../types/types';
 import Row from '../Row/Row';
 import Card from '../Card/Card';
 import MessageField from '../MessageField/MessageField';
+import { useEffect, useState } from 'react';
+import { apiBase, appStateInitial } from '../types/constants';
+import { useLocation, useNavigate } from 'react-router';
+import styles from './App.module.scss';
 
-class App extends Component<object, appState> {
-  state = {
-    data: [],
-    loading: false,
-    hasError: false,
-    noResults: false,
-    itemSelected: null,
-    apiBase: 'https://swapi.py4e.com/api/people/?search=',
-    charactersApiBase: 'https://swapi.py4e.com/api/people/',
-  };
+const App = () => {
+  const [appState, setAppState] = useState<appState>(appStateInitial);
+  const [isClosedCard, setIsClosedCard] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  onUpdateSearch = async (search: string) => {
-    try {
-      this.setState({ loading: true, itemSelected: null });
-      const api = search ? this.state.apiBase : this.state.charactersApiBase;
-      const getSearch = await fetch(`${api}${search}`);
-      if (!getSearch.ok) {
-        throw new Error('Error in search response');
-      }
-      const data = await getSearch.json();
-      if (data.results.length > 0) {
-        this.setState({ data: data.results, noResults: false, loading: false });
-      } else {
-        this.setState({ data: data.results, noResults: true, loading: false });
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      this.setState({ data: [], loading: false });
+  const searchParams = new URLSearchParams(location.search);
+  const searchQuery = searchParams.get('search') || '';
+  const pageQuery = searchParams.get('page') || '1';
+
+  useEffect(() => {
+    const saveSearch = localStorage.getItem('search');
+    if (saveSearch) {
+      navigate(`/?search=${saveSearch}&page=1`);
     }
+  }, [navigate]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setAppState((prev) => ({ ...prev, loading: true }));
+
+        const listResponse = await fetch(
+          `${apiBase}?page=${pageQuery}&name=${searchQuery}`
+        );
+        const listData = await listResponse.json();
+        if (listData) {
+          setAppState((prev) => ({
+            ...prev,
+            data: listData.results || [],
+            count: listData.info?.count || 0,
+            previous: listData.info?.prev || null,
+            next: listData.info?.next || null,
+            itemSelected: null,
+            noResults: !listData.results?.length,
+            loading: false,
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setAppState((prev) => ({
+          ...prev,
+          loading: false,
+          noResults: true,
+        }));
+      }
+    };
+
+    fetchData();
+  }, [searchQuery, pageQuery]);
+
+  const onUpdateSearch = (search: string) => {
+    navigate(`/?search=${search}&page=1`);
   };
 
-  onItemSelected = (character: swcharacter) => {
-    this.setState({ itemSelected: character });
+  const handelClodedCard = () => {
+    setIsClosedCard(true);
   };
 
-  triggerError = () => {
-    this.setState({ hasError: true });
-  };
-
-  render() {
-    if (this.state.hasError) {
-      throw new Error('Это тестовая ошибка из компонента App!');
-    }
-    return (
-      <>
-        <h1 className="header">RS School. Task 1</h1>
-        <Search onUpdateSearch={this.onUpdateSearch} />
-        {this.state.data.length === 0 && !this.state.noResults && (
-          <MessageField
-            title={'Welcome to search App(Star Wars)'}
-            text={
-              'You can find characters from StarWars, just type in search field.'
-            }
-          />
-        )}
-        {this.state.noResults && (
-          <MessageField title={'Sorry'} text={'Nothing found!'} />
-        )}
-        {!this.state.loading && this.state.data.length > 0 && (
-          <Row
-            left={
-              <CardList
-                data={this.state.data}
-                onItemSelected={this.onItemSelected}
-              />
-            }
-            right={
-              this.state.itemSelected && <Card card={this.state.itemSelected} />
-            }
-          />
-        )}
-        {this.state.loading && <Spinner />}
-        <button className="triggerButton" onClick={this.triggerError}>
-          Throw Error
-        </button>
-      </>
+  const onItemSelected = (character: character) => {
+    setIsClosedCard(false);
+    setAppState((prev) => ({
+      ...prev,
+      itemSelected: character,
+    }));
+    navigate(
+      `/?search=${searchQuery}&page=${pageQuery}&details=${character.id}`
     );
-  }
-}
+  };
+
+  return (
+    <>
+      <h1 className="header">RS School. Task 3</h1>
+      <Search onUpdateSearch={onUpdateSearch} />
+
+      {appState.noResults && (
+        <MessageField title={'Sorry'} text={'Nothing found!'} />
+      )}
+
+      {!appState.loading && appState.count > 0 && (
+        <Row
+          left={
+            <CardList data={appState.data} onItemSelected={onItemSelected} />
+          }
+          right={
+            appState.itemSelected && (
+              <Card
+                card={appState.itemSelected}
+                isClosed={isClosedCard}
+                onClose={handelClodedCard}
+              />
+            )
+          }
+        />
+      )}
+
+      {appState.loading && <Spinner />}
+
+      {appState.count > 0 && (
+        <div className={styles.pagination}>
+          <button
+            onClick={() =>
+              navigate(
+                `/?search=${searchQuery}&page=${parseInt(pageQuery) - 1}`
+              )
+            }
+            className={`${styles.pagination_button} ${parseInt(pageQuery) <= 1 ? `${styles.pagination_button_disabled}` : ''}`}
+            disabled={parseInt(pageQuery) <= 1}
+          >
+            Previous
+          </button>
+          <span className={styles.pagination_page}>Page {pageQuery}</span>
+          <button
+            onClick={() =>
+              navigate(
+                `/?search=${searchQuery}&page=${parseInt(pageQuery) + 1}`
+              )
+            }
+            className={`${styles.pagination_button} ${!appState.next ? `${styles.pagination_button_disabled}` : ''}`}
+            disabled={!appState.next}
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </>
+  );
+};
 
 export default App;

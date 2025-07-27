@@ -1,28 +1,27 @@
 import type { ReactNode } from 'react';
 
 type searchProps = {
-  onUpdateSearch: (search: string) => void;
+  onUpdateSearch: (search: string, url?: string) => void;
 };
 
-export interface swcharacter {
+export interface character {
+  id: number;
   name: string;
-  height: string;
-  mass: string;
-  hair_color: string;
-  skin_color: string;
-  birth_year: string;
-  eye_color: string;
-  gender?: string;
+  status: string;
+  species: string;
+  gender: string;
+  image: string;
   url: string;
 }
 
 export interface appState {
-  data: swcharacter[];
-  itemSelected: swcharacter | null;
-  hasError: boolean;
+  data: character[];
+  count: number;
+  previous: string | null;
+  next: string | null;
+  itemSelected: character | null;
   noResults: boolean;
   loading: boolean;
-  apiBase: string;
 }
 
 export interface rowProps {
@@ -31,12 +30,14 @@ export interface rowProps {
 }
 
 type cardListProps = {
-  data: swcharacter[];
-  onItemSelected: (item: swcharacter) => void;
+  data: character[];
+  onItemSelected: (item: character) => void;
 };
 
 export interface cardProps {
-  card: swcharacter;
+  card: character | null;
+  isClosed: boolean;
+  onClose: () => void;
 }
 export interface messageProps {
   title: string;

@@ -1,53 +1,40 @@
-import React, { Component } from 'react';
-import './Search.css';
+import React from 'react';
 import type { searchProps } from '../types/types';
+import styles from './Search.module.scss';
+import useRestoreSearch from '../../hooks/useRestoreSearch';
 
-class Search extends Component<searchProps> {
-  state = {
-    search: '',
+const Search = ({ onUpdateSearch }: searchProps) => {
+  const [search, setSearch] = useRestoreSearch('');
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
   };
 
-  componentDidMount(): void {
-    const saveSearch = localStorage.getItem('search');
-    if (saveSearch) {
-      this.setState({
-        search: saveSearch,
-      });
-      this.props.onUpdateSearch(saveSearch);
-    } else {
-      this.props.onUpdateSearch(this.state.search);
+  const handleUpdateSearch = () => {
+    onUpdateSearch(search);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleUpdateSearch();
     }
-  }
-
-  handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({
-      search: e.target.value,
-    });
   };
 
-  onUpdateSearch = () => {
-    const { search } = this.state;
-    const trimmedSearch = search.trim();
-    localStorage.setItem('search', trimmedSearch);
-    this.props.onUpdateSearch(trimmedSearch);
-  };
-
-  render() {
-    return (
-      <div className="search_container">
-        <input
-          type="text"
-          placeholder="Type something..."
-          className="search_field"
-          value={this.state.search}
-          onChange={this.handleSearchChange}
-        ></input>
-        <button className="search_button" onClick={this.onUpdateSearch}>
-          Search
-        </button>
-      </div>
-    );
-  }
-}
+  return (
+    <div className={styles.container}>
+      <input
+        type="text"
+        placeholder="Type something..."
+        onKeyDown={handleKeyDown}
+        className={styles.field}
+        value={search}
+        onChange={handleSearchChange}
+      ></input>
+      <button className={styles.button} onClick={handleUpdateSearch}>
+        Search
+      </button>
+    </div>
+  );
+};
 
 export default Search;

@@ -5,26 +5,22 @@ import { describe, it, expect, vi } from 'vitest';
 describe('CardList Component', () => {
   const mockData = [
     {
-      name: 'Luke Skywalker',
-      height: '172',
-      mass: '77',
-      hair_color: 'blond',
-      skin_color: 'fair',
-      eye_color: 'blue',
-      birth_year: '19BBY',
-      gender: 'male',
-      url: 'https://swapi.py4e.com/api/people/1/',
+      id: 1,
+      name: 'Rick Sanchez',
+      status: 'Alive',
+      species: 'Human',
+      gender: 'Male',
+      url: 'https://rickandmortyapi.com/api/character/1',
+      image: 'https://rickandmortyapi.com/api/character/avatar/1.jpeg',
     },
     {
-      name: 'Leia Organa',
-      height: '150',
-      mass: '49',
-      hair_color: 'brown',
-      skin_color: 'light',
-      eye_color: 'brown',
-      birth_year: '19BBY',
-      gender: 'female',
-      url: 'https://swapi.py4e.com/api/people/5/',
+      id: 2,
+      name: 'Morty Smith',
+      status: 'Alive',
+      species: 'Human',
+      gender: 'Male',
+      url: 'https://rickandmortyapi.com/api/character/2',
+      image: 'https://rickandmortyapi.com/api/character/avatar/2.jpeg',
     },
   ];
 
@@ -32,15 +28,15 @@ describe('CardList Component', () => {
     const mockOnItemSelected = vi.fn();
     render(<CardList data={mockData} onItemSelected={mockOnItemSelected} />);
 
-    expect(screen.getByText('Luke Skywalker')).toBeInTheDocument();
-    expect(screen.getByText('Leia Organa')).toBeInTheDocument();
+    expect(screen.getByText('Rick Sanchez')).toBeInTheDocument();
+    expect(screen.getByText('Morty Smith')).toBeInTheDocument();
   });
 
   it('calls onItemSelected when item clicked', () => {
     const mockOnItemSelected = vi.fn();
     render(<CardList data={mockData} onItemSelected={mockOnItemSelected} />);
 
-    fireEvent.click(screen.getByText('Luke Skywalker'));
+    fireEvent.click(screen.getByText('Rick Sanchez'));
     expect(mockOnItemSelected).toHaveBeenCalledWith(mockData[0]);
   });
 });

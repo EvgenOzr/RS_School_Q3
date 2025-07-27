@@ -1,26 +1,21 @@
-import { Component } from 'react';
 import type { cardListProps } from '../types/types';
-import './CardList.css';
+import styles from './CardList.module.scss';
 
-class CardList extends Component<cardListProps> {
-  render() {
-    return (
-      <div className="card_list">
-        {this.props.data &&
-          this.props.data.map((item, idx) => {
-            return (
-              <div
-                className={`card_list_item`}
-                key={idx}
-                onClick={() => this.props.onItemSelected(item)}
-              >
-                {item.name}
-              </div>
-            );
-          })}
-      </div>
-    );
-  }
-}
+const CardList = ({ data, onItemSelected }: cardListProps) => {
+  return (
+    <div className={styles.card_list}>
+      {data &&
+        data.map((item) => (
+          <div
+            key={item.id}
+            className={styles.list_item}
+            onClick={() => onItemSelected(item)}
+          >
+            {item.name}
+          </div>
+        ))}
+    </div>
+  );
+};
 
 export default CardList;
