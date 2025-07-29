@@ -1,7 +1,7 @@
 import { describe, test, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Card from './Card';
-import type { character } from '../types/types';
+import type { character } from '../../types/types';
 
 const mockCharacter: character = {
   id: 1,

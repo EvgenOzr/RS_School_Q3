@@ -4,6 +4,11 @@ type searchProps = {
   onUpdateSearch: (search: string, url?: string) => void;
 };
 
+export enum Theme {
+  LIGHT = 'light',
+  DARK = 'dark',
+}
+
 export interface character {
   id: number;
   name: string;

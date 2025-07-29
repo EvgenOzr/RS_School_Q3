@@ -1,4 +1,4 @@
-import type { rowProps } from '../types/types';
+import type { rowProps } from '../../types/types';
 import styles from './Row.module.css';
 
 const Row = ({ left, right }: rowProps) => {

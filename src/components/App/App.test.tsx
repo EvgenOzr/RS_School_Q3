@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter, useLocation, useNavigate } from 'react-router';
 import App from './App';
-import type { character } from '../types/types';
+import type { character } from '../../types/types';
 
 vi.mock('../Search/Search', () => ({
   default: ({

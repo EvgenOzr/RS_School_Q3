@@ -1,4 +1,4 @@
-import type { messageProps } from '../types/types';
+import type { messageProps } from '../../types/types';
 import styles from './MessageField.module.scss';
 
 const MessageField = ({ title, text }: messageProps) => {

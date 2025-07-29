@@ -1,10 +1,20 @@
-import type { cardProps } from '../types/types';
+import type { cardProps } from '../../types/types';
 import styles from './Card.module.scss';
+import themeStyles from '../../Context/themeColor.module.scss';
+import { useContext } from 'react';
+import { ThemeContext } from '../../Context/themeContext';
+import { Theme } from '../../types/types';
 
 const Card = ({ card, isClosed, onClose }: cardProps) => {
+  const { theme } = useContext(ThemeContext);
+
   if (!card || isClosed) return null;
+
+  const newTheme =
+    theme === Theme.LIGHT ? `${themeStyles.light}` : `${themeStyles.dark}`;
+
   return (
-    <div className={styles.card}>
+    <div className={`${styles.card} ${newTheme}`}>
       <div className={styles.image}>
         <img src={card.image} alt="image" />
       </div>

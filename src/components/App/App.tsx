@@ -1,18 +1,21 @@
 import Search from '../Search/Search';
 import Spinner from '../Spinner/Spinner';
 import CardList from '../CardList/CardList';
-import type { appState, character } from '../types/types';
+import { Theme, type appState, type character } from '../../types/types';
 import Row from '../Row/Row';
 import Card from '../Card/Card';
 import MessageField from '../MessageField/MessageField';
-import { useEffect, useState } from 'react';
-import { apiBase, appStateInitial } from '../types/constants';
+import { useContext, useEffect, useState } from 'react';
+import { apiBase, appStateInitial } from '../../types/constants';
 import { useLocation, useNavigate } from 'react-router';
 import styles from './App.module.scss';
+import themeStyles from '../../Context/themeColor.module.scss';
+import { ThemeContext } from '../../Context/themeContext';
 
 const App = () => {
   const [appState, setAppState] = useState<appState>(appStateInitial);
   const [isClosedCard, setIsClosedCard] = useState(false);
+  const { theme } = useContext(ThemeContext);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -79,7 +82,8 @@ const App = () => {
       `/?search=${searchQuery}&page=${pageQuery}&details=${character.id}`
     );
   };
-
+  const newTheme =
+    theme === Theme.LIGHT ? `${themeStyles.light}` : `${themeStyles.dark}`;
   return (
     <>
       <h1 className="header">RS School. Task 3</h1>
@@ -116,7 +120,7 @@ const App = () => {
                 `/?search=${searchQuery}&page=${parseInt(pageQuery) - 1}`
               )
             }
-            className={`${styles.pagination_button} ${parseInt(pageQuery) <= 1 ? `${styles.pagination_button_disabled}` : ''}`}
+            className={`${styles.pagination_button} ${parseInt(pageQuery) <= 1 ? `${styles.pagination_button_disabled}` : ''} ${newTheme}`}
             disabled={parseInt(pageQuery) <= 1}
           >
             Previous
@@ -128,7 +132,7 @@ const App = () => {
                 `/?search=${searchQuery}&page=${parseInt(pageQuery) + 1}`
               )
             }
-            className={`${styles.pagination_button} ${!appState.next ? `${styles.pagination_button_disabled}` : ''}`}
+            className={`${styles.pagination_button} ${!appState.next ? `${styles.pagination_button_disabled}` : ''} ${newTheme}`}
             disabled={!appState.next}
           >
             Next
