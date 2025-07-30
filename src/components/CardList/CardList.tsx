@@ -59,7 +59,10 @@ const CardList = ({ data, onItemSelected }: cardListProps) => {
 
   return (
     <>
-      <div className={`${styles.card_list} ${newTheme}`}>
+      <div
+        className={`${styles.card_list} ${newTheme}`}
+        data-testid="card-list"
+      >
         {data &&
           data.map((item, idx) => {
             const favChecked: boolean = !!checkedCharacters.find(

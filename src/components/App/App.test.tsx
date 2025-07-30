@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter, useLocation, useNavigate } from 'react-router';
 import App from './App';
 import type { character } from '../../types/types';
+import styles from './App.module.scss';
 
 vi.mock('../Search/Search', () => ({
   default: ({
@@ -87,6 +88,21 @@ vi.mock('react-router', async () => {
   };
 });
 
+vi.mock('./App.module.scss', () => ({
+  default: {
+    pagination: 'mock_pagination',
+    pagination_button: 'mock_pagination_button',
+    pagination_button_disabled: 'mock_pagination_button_disabled',
+    pagination_page: 'mock_pagination_page',
+  },
+}));
+
+vi.mock('../../Context/themeColor.module.scss', () => ({
+  default: {
+    light: 'mock_light',
+    dark: 'mock_dark',
+  },
+}));
 globalThis.fetch = vi.fn();
 
 describe('App Component', () => {
@@ -264,6 +280,52 @@ describe('App Component', () => {
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/?search=morty&page=1');
+    });
+  });
+
+  it('disables previous button on first page', async () => {
+    const mockData = {
+      results: [{ id: 1, name: 'Rick Sanchez' }],
+      info: { count: 1, prev: null, next: null },
+    };
+
+    vi.mocked(fetch).mockResolvedValueOnce({
+      json: () => Promise.resolve(mockData),
+    } as Response);
+
+    render(
+      <MemoryRouter initialEntries={['/?page=1']}>
+        <App />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      const prevButton = screen.getByText('Previous');
+      expect(prevButton).toBeDisabled();
+      expect(prevButton).toHaveClass(styles.pagination_button_disabled);
+    });
+  });
+
+  it('disables next button when no more pages', async () => {
+    const mockData = {
+      results: [{ id: 1, name: 'Rick Sanchez' }],
+      info: { count: 1, prev: null, next: null },
+    };
+
+    vi.mocked(fetch).mockResolvedValueOnce({
+      json: () => Promise.resolve(mockData),
+    } as Response);
+
+    render(
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      const nextButton = screen.getByText('Next');
+      expect(nextButton).toBeDisabled();
+      expect(nextButton).toHaveClass(styles.pagination_button_disabled);
     });
   });
 });

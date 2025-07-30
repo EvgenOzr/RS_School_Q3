@@ -113,7 +113,7 @@ const App = () => {
       {appState.loading && <Spinner />}
 
       {appState.count > 0 && (
-        <div className={styles.pagination}>
+        <div className={styles.pagination} data-testid="pagination">
           <button
             onClick={() =>
               navigate(
@@ -122,6 +122,7 @@ const App = () => {
             }
             className={`${styles.pagination_button} ${parseInt(pageQuery) <= 1 ? `${styles.pagination_button_disabled}` : ''} ${newTheme}`}
             disabled={parseInt(pageQuery) <= 1}
+            data-testid="prev-button"
           >
             Previous
           </button>
@@ -134,6 +135,7 @@ const App = () => {
             }
             className={`${styles.pagination_button} ${!appState.next ? `${styles.pagination_button_disabled}` : ''} ${newTheme}`}
             disabled={!appState.next}
+            data-testid="next-button"
           >
             Next
           </button>

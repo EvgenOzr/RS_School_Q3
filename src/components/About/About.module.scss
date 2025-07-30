@@ -1,7 +1,6 @@
 @use '../../assets/variables.scss' as variables;
 .about {
   font-size: 20px;
-  background-color: #fff;
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -13,10 +12,9 @@
   border-radius: 5px;
   padding: 5px;
   text-decoration: none;
-  color: #000;
-  transition: 0.5s all;
 }
 .git:hover {
+  transition: 0.5s all;
   background-color: variables.$hover_color;
 }
 .school {

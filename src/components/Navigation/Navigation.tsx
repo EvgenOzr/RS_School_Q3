@@ -16,7 +16,7 @@ const Navigation = () => {
     theme === Theme.LIGHT ? `${themeStyles.light}` : `${themeStyles.dark}`;
 
   return (
-    <div className={`${styles.navigation} ${newTheme}`}>
+    <div className={`${styles.navigation} ${newTheme}`} role="navigation">
       <Link to="/" className={`${styles.item} ${newTheme}`}>
         Main page
       </Link>
