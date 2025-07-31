@@ -1,0 +1,29 @@
+@use '../../assets/variables.scss' as variables;
+.navigation {
+  padding: 5px;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-radius: 5px;
+  gap: 10px;
+}
+.item {
+  font-size: 20px;
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 5px;
+}
+.item:hover {
+  transition: 0.5s all;
+  background-color: variables.$hover_color;
+}
+.toggleTheme {
+  cursor: pointer;
+  width: 130px;
+  height: 100%;
+  font-size: 15px;
+  font-weight: 700;
+  border: 1px solid black;
+  border-radius: 5px;
+}

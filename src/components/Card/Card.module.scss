@@ -1,0 +1,65 @@
+@use '../../assets/variables.scss' as variables;
+.card {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  gap: 10px;
+  // background-color: #ff;
+  border-radius: 5px;
+}
+
+.field {
+  padding: 5px;
+  font-size: 20px;
+}
+
+.image {
+  display: flex;
+  justify-content: center;
+}
+
+.image img {
+  border-radius: 5px;
+  width: 75%;
+  height: auto;
+}
+
+.close {
+  position: absolute;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.close::before,
+.close::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: black;
+}
+
+.close::before {
+  transform: rotate(45deg);
+}
+
+.close::after {
+  transform: rotate(-45deg);
+}
+
+.close:hover::before,
+.close:hover::after {
+  background: variables.$hover_color;
+  transition: all 0.3s ease;
+}
+.close:active {
+  transform: scale(0.9);
+}

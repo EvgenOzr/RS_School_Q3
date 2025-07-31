@@ -1,0 +1,24 @@
+@use '../../assets/variables.scss' as variables;
+.about {
+  font-size: 20px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  border-radius: 5px;
+}
+.git {
+  border-radius: 5px;
+  padding: 5px;
+  text-decoration: none;
+}
+.git:hover {
+  transition: 0.5s all;
+  background-color: variables.$hover_color;
+}
+.school {
+  background: url('../../assets/rss-logo.svg') center center no-repeat;
+  width: 50px;
+  height: 50px;
+}
