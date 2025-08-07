@@ -4,10 +4,13 @@ import styles from './Search.module.scss';
 import themeStyles from '../../Context/themeColor.module.scss';
 import useRestoreSearch from '../../hooks/useRestoreSearch';
 import { ThemeContext } from '../../Context/themeContext';
+import { useDispatch } from 'react-redux';
+import { deleteAll } from '../../store/saveCharactersSlice';
 
 const Search = ({ onUpdateSearch }: searchProps) => {
   const [search, setSearch] = useRestoreSearch('');
   const { theme } = useContext(ThemeContext);
+  const dispatch = useDispatch();
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -15,6 +18,7 @@ const Search = ({ onUpdateSearch }: searchProps) => {
 
   const handleUpdateSearch = () => {
     onUpdateSearch(search);
+    dispatch(deleteAll());
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
