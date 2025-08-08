@@ -14,7 +14,7 @@ const Card = ({ card, isClosed, onClose }: cardProps) => {
     theme === Theme.LIGHT ? `${themeStyles.light}` : `${themeStyles.dark}`;
 
   return (
-    <div className={`${styles.card} ${newTheme}`}>
+    <div className={`${styles.card} ${newTheme}`} data-testid="character-card">
       <div className={styles.image}>
         <img src={card.image} alt="image" />
       </div>

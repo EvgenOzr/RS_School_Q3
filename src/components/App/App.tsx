@@ -58,13 +58,11 @@ const App = () => {
 
   const onUpdateSearch = (search: string) => {
     navigate(`/?search=${search}&page=1`);
-    // dispatch(rimApi.util.invalidateTags(['SearchResults']));
-    dispatch(rimApi.util.resetApiState());
+    dispatch(rimApi.util.invalidateTags(['SearchResults']));
   };
 
   const handleForceRefresh = () => {
     dispatch(rimApi.util.resetApiState());
-    // dispatch(rimApi.util.invalidateTags(['SearchResults']));
   };
   const handelClosedCard = () => {
     setIsClosedCard(true);
@@ -89,7 +87,12 @@ const App = () => {
       <Search onUpdateSearch={onUpdateSearch} />
       {isFetching && <Spinner />}
       {isError && <MessageField title={'Sorry'} text={'Nothing found!'} />}
-      <button onClick={handleForceRefresh}>Обновить данные</button>
+      <button
+        onClick={handleForceRefresh}
+        className={`${styles.triggerButton} ${newTheme}`}
+      >
+        Update data
+      </button>
       {!isFetching && !isError && appState.data.length > 0 && (
         <Row
           left={
