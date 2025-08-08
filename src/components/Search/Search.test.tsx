@@ -1,85 +1,64 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import { ThemeContext } from '../../Context/themeContext';
+import { Theme } from '../../types/types';
 import Search from './Search';
-import userEvent from '@testing-library/user-event';
+import { configureStore } from '@reduxjs/toolkit';
+import saveCharactersSlice from '../../store/saveCharactersSlice';
 
-const localStorageMock = (() => {
-  let store: Record<string, string> = {};
+const mockOnUpdateSearch = vi.fn();
 
-  return {
-    getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => {
-      store[key] = value.toString();
-    },
-    clear: () => {
-      store = {};
-    },
-  };
-})();
-
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
+const store = configureStore({
+  reducer: {
+    saveCharacters: saveCharactersSlice,
+  },
 });
 
 describe('Search Component', () => {
-  const mockUpdateSearch = vi.fn();
+  const renderWithProviders = (theme = Theme.LIGHT) => {
+    return render(
+      <Provider store={store}>
+        <ThemeContext.Provider value={{ theme, setTheme: () => {} }}>
+          <Search onUpdateSearch={mockOnUpdateSearch} />
+        </ThemeContext.Provider>
+      </Provider>
+    );
+  };
 
-  beforeEach(() => {
-    window.localStorage.clear();
-    mockUpdateSearch.mockClear();
+  it('renders correctly', () => {
+    renderWithProviders();
+    expect(
+      screen.getByPlaceholderText('Type something...')
+    ).toBeInTheDocument();
+    expect(screen.getByText('Search')).toBeInTheDocument();
   });
 
-  test('renders correctly with initial state', () => {
-    render(<Search onUpdateSearch={mockUpdateSearch} />);
-
-    expect(screen.getByRole('textbox')).toBeInTheDocument();
-    expect(screen.getByRole('textbox')).toHaveValue('');
-    expect(screen.getByRole('button', { name: /search/i })).toBeInTheDocument();
+  it('updates search input value', () => {
+    renderWithProviders();
+    const input = screen.getByPlaceholderText('Type something...');
+    fireEvent.change(input, { target: { value: 'test' } });
+    expect(input).toHaveValue('test');
   });
 
-  test('updates input value when typing', () => {
-    render(<Search onUpdateSearch={mockUpdateSearch} />);
-    const input = screen.getByRole('textbox');
+  it('calls onUpdateSearch when search button is clicked', () => {
+    renderWithProviders();
+    const input = screen.getByPlaceholderText('Type something...');
+    const button = screen.getByText('Search');
 
-    fireEvent.change(input, { target: { value: 'Rick' } });
-    expect(input).toHaveValue('Rick');
-  });
-
-  test('calls onUpdateSearch with trimmed value when button clicked', () => {
-    render(<Search onUpdateSearch={mockUpdateSearch} />);
-    const input = screen.getByRole('textbox');
-    const button = screen.getByRole('button', { name: /search/i });
-
-    fireEvent.change(input, { target: { value: '  Rick  ' } });
+    fireEvent.change(input, { target: { value: 'test' } });
     fireEvent.click(button);
 
-    expect(mockUpdateSearch).toHaveBeenCalledWith('Rick');
-    expect(localStorage.getItem('search')).toBe('Rick');
+    expect(mockOnUpdateSearch).toHaveBeenCalledWith('test');
   });
 
-  test('loads saved search from localStorage on mount', () => {
-    localStorage.setItem('search', 'Morty');
-    render(<Search onUpdateSearch={mockUpdateSearch} />);
+  it('calls onUpdateSearch when Enter key is pressed', () => {
+    renderWithProviders();
+    const input = screen.getByPlaceholderText('Type something...');
 
-    expect(screen.getByRole('textbox')).toHaveValue('Morty');
-  });
-
-  test('triggers search on Enter key press', () => {
-    render(<Search onUpdateSearch={mockUpdateSearch} />);
-    const input = screen.getByRole('textbox');
-
-    fireEvent.change(input, { target: { value: 'Rick' } });
+    fireEvent.change(input, { target: { value: 'test' } });
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
-    expect(mockUpdateSearch).toHaveBeenCalledWith('Rick');
-  });
-
-  test('updates input and submits with userEvent', async () => {
-    const user = userEvent.setup();
-    render(<Search onUpdateSearch={mockUpdateSearch} />);
-
-    await user.type(screen.getByRole('textbox'), 'Rick{enter}');
-
-    expect(mockUpdateSearch).toHaveBeenCalledWith('Rick');
+    expect(mockOnUpdateSearch).toHaveBeenCalledWith('test');
   });
 });

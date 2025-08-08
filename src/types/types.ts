@@ -25,8 +25,6 @@ export interface appState {
   previous: string | null;
   next: string | null;
   itemSelected: character | null;
-  noResults: boolean;
-  loading: boolean;
 }
 
 export interface rowProps {

@@ -6,11 +6,13 @@ import Row from '../Row/Row';
 import Card from '../Card/Card';
 import MessageField from '../MessageField/MessageField';
 import { useContext, useEffect, useState } from 'react';
-import { apiBase, appStateInitial } from '../../types/constants';
+import { appStateInitial } from '../../types/constants';
 import { useLocation, useNavigate } from 'react-router';
 import styles from './App.module.scss';
 import themeStyles from '../../Context/themeColor.module.scss';
 import { ThemeContext } from '../../Context/themeContext';
+import { rimApi, useGetSearchQuery } from '../../store/rimService';
+import { useDispatch } from 'react-redux';
 
 const App = () => {
   const [appState, setAppState] = useState<appState>(appStateInitial);
@@ -18,10 +20,14 @@ const App = () => {
   const { theme } = useContext(ThemeContext);
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
 
   const searchParams = new URLSearchParams(location.search);
   const searchQuery = searchParams.get('search') || '';
   const pageQuery = searchParams.get('page') || '1';
+  const { data, isFetching, isError } = useGetSearchQuery(
+    `?page=${pageQuery}&name=${searchQuery}`
+  );
 
   useEffect(() => {
     const saveSearch = localStorage.getItem('search');
@@ -31,44 +37,34 @@ const App = () => {
   }, [navigate]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setAppState((prev) => ({ ...prev, loading: true }));
-
-        const listResponse = await fetch(
-          `${apiBase}?page=${pageQuery}&name=${searchQuery}`
-        );
-        const listData = await listResponse.json();
-        if (listData) {
-          setAppState((prev) => ({
-            ...prev,
-            data: listData.results || [],
-            count: listData.info?.count || 0,
-            previous: listData.info?.prev || null,
-            next: listData.info?.next || null,
-            itemSelected: null,
-            noResults: !listData.results?.length,
-            loading: false,
-          }));
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setAppState((prev) => ({
-          ...prev,
-          loading: false,
-          noResults: true,
-        }));
-      }
-    };
-
-    fetchData();
-  }, [searchQuery, pageQuery]);
+    if (isError) {
+      setAppState((prev) => ({
+        ...prev,
+        data: [],
+        count: 0,
+      }));
+    }
+    if (data) {
+      setAppState((prev) => ({
+        ...prev,
+        data: data.results || [],
+        count: data.info?.count || 0,
+        previous: data.info?.prev || null,
+        next: data.info?.next || null,
+        itemSelected: null,
+      }));
+    }
+  }, [isFetching, data, isError, searchQuery]);
 
   const onUpdateSearch = (search: string) => {
     navigate(`/?search=${search}&page=1`);
+    dispatch(rimApi.util.invalidateTags(['SearchResults']));
   };
 
-  const handelClodedCard = () => {
+  const handleForceRefresh = () => {
+    dispatch(rimApi.util.resetApiState());
+  };
+  const handelClosedCard = () => {
     setIsClosedCard(true);
   };
 
@@ -82,18 +78,22 @@ const App = () => {
       `/?search=${searchQuery}&page=${pageQuery}&details=${character.id}`
     );
   };
+
   const newTheme =
     theme === Theme.LIGHT ? `${themeStyles.light}` : `${themeStyles.dark}`;
   return (
     <>
       <h1 className="header">RS School. Task 3</h1>
       <Search onUpdateSearch={onUpdateSearch} />
-
-      {appState.noResults && (
-        <MessageField title={'Sorry'} text={'Nothing found!'} />
-      )}
-
-      {!appState.loading && appState.count > 0 && (
+      {isFetching && <Spinner />}
+      {isError && <MessageField title={'Sorry'} text={'Nothing found!'} />}
+      <button
+        onClick={handleForceRefresh}
+        className={`${styles.triggerButton} ${newTheme}`}
+      >
+        Update data
+      </button>
+      {!isFetching && !isError && appState.data.length > 0 && (
         <Row
           left={
             <CardList data={appState.data} onItemSelected={onItemSelected} />
@@ -103,14 +103,12 @@ const App = () => {
               <Card
                 card={appState.itemSelected}
                 isClosed={isClosedCard}
-                onClose={handelClodedCard}
+                onClose={handelClosedCard}
               />
             )
           }
         />
       )}
-
-      {appState.loading && <Spinner />}
 
       {appState.count > 0 && (
         <div className={styles.pagination} data-testid="pagination">
