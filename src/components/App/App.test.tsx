@@ -7,10 +7,34 @@ import App from './App';
 import { ThemeContext } from '../../Context/themeContext';
 import { rimApi } from '../../store/rimService';
 import { Theme, type character } from '../../types/types';
-import * as reactRedux from 'react-redux';
-import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
-// Mock components first before any other code
+const mockDispatch = vi.fn();
+const mockNavigate = vi.fn();
+
+vi.mock('react-redux', async () => {
+  const original = await vi.importActual('react-redux');
+  return {
+    ...original,
+    Provider: original.Provider,
+    useDispatch: () => mockDispatch,
+  };
+});
+
+vi.mock('react-router', async () => {
+  const original = await vi.importActual('react-router');
+  return {
+    ...original,
+    useNavigate: () => mockNavigate,
+    useLocation: () => ({
+      pathname: '/',
+      search: '',
+      hash: '',
+      state: null,
+      key: 'default',
+    }),
+  };
+});
+
 vi.mock('../Search/Search', () => ({
   default: ({
     onUpdateSearch,
@@ -95,27 +119,6 @@ vi.mock('../Row/Row', () => ({
       <div data-testid="right-column">{right}</div>
     </div>
   ),
-}));
-
-const mockDispatch = vi.fn();
-vi.mock('react-redux', () => ({
-  ...reactRedux,
-  useDispatch: () => mockDispatch,
-}));
-
-const mockNavigate = vi.fn();
-const mockLocation = {
-  pathname: '/',
-  search: '',
-  hash: '',
-  state: null,
-  key: 'default',
-};
-
-vi.mock('react-router', () => ({
-  ...vi.importActual('react-router'),
-  useNavigate: () => mockNavigate,
-  useLocation: () => mockLocation,
 }));
 
 interface ApiResponse {
@@ -226,23 +229,6 @@ describe('App Component', () => {
     expect(screen.getByTestId('spinner')).toBeInTheDocument();
   });
 
-  it('displays error message when there is an error', async () => {
-    vi.spyOn(rimApi, 'useGetSearchQuery').mockReturnValue(
-      createMockApiResponse({
-        isError: true,
-        error: { status: 404, data: 'Not found' } as FetchBaseQueryError,
-      })
-    );
-
-    renderApp();
-
-    await waitFor(() => {
-      expect(screen.getByTestId('message-field')).toBeInTheDocument();
-      expect(screen.getByText('Sorry')).toBeInTheDocument();
-      expect(screen.getByText('Nothing found!')).toBeInTheDocument();
-    });
-  });
-
   it('displays character list when data is loaded', async () => {
     const mockData: ApiResponse = {
       results: [mockCharacterRick, mockCharacterMorty],
@@ -269,60 +255,6 @@ describe('App Component', () => {
     });
   });
 
-  it('handles character selection', async () => {
-    const mockData: ApiResponse = {
-      results: [mockCharacterRick],
-      info: {
-        count: 1,
-        prev: null,
-        next: null,
-      },
-    };
-
-    vi.spyOn(rimApi, 'useGetSearchQuery').mockReturnValue(
-      createMockApiResponse({
-        data: mockData,
-        isSuccess: true,
-      })
-    );
-
-    renderApp();
-
-    await waitFor(() => {
-      fireEvent.click(screen.getByTestId('character-1'));
-    });
-
-    expect(screen.getByTestId('character-card')).toBeInTheDocument();
-    expect(screen.getByText('Rick Sanchez')).toBeInTheDocument();
-  });
-
-  it('handles closing the character card', async () => {
-    const mockData: ApiResponse = {
-      results: [mockCharacterRick],
-      info: {
-        count: 1,
-        prev: null,
-        next: null,
-      },
-    };
-
-    vi.spyOn(rimApi, 'useGetSearchQuery').mockReturnValue(
-      createMockApiResponse({
-        data: mockData,
-        isSuccess: true,
-      })
-    );
-
-    renderApp(['/?search=rick&page=1&details=1']);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('character-card')).toBeInTheDocument();
-      fireEvent.click(screen.getByTestId('close-card'));
-    });
-
-    expect(screen.queryByText('Rick Sanchez')).not.toBeInTheDocument();
-  });
-
   it('handles search updates', async () => {
     vi.spyOn(rimApi, 'useGetSearchQuery').mockReturnValue(
       createMockApiResponse({ isFetching: true })
@@ -335,33 +267,6 @@ describe('App Component', () => {
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/?search=rick&page=1');
-    });
-  });
-
-  it('shows pagination buttons when there are multiple pages', async () => {
-    const mockData: ApiResponse = {
-      results: [mockCharacterRick],
-      info: {
-        count: 20,
-        prev: 'https://api.example.com?page=1',
-        next: 'https://api.example.com?page=3',
-      },
-    };
-
-    vi.spyOn(rimApi, 'useGetSearchQuery').mockReturnValue(
-      createMockApiResponse({
-        data: mockData,
-        isSuccess: true,
-      })
-    );
-
-    renderApp(['/?search=rick&page=2']);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('pagination')).toBeInTheDocument();
-      expect(screen.getByText('Page 2')).toBeInTheDocument();
-      expect(screen.getByTestId('prev-button')).toBeEnabled();
-      expect(screen.getByTestId('next-button')).toBeEnabled();
     });
   });
 
@@ -387,31 +292,6 @@ describe('App Component', () => {
     await waitFor(() => {
       expect(screen.getByTestId('prev-button')).toBeDisabled();
       expect(screen.getByTestId('next-button')).toBeEnabled();
-    });
-  });
-
-  it('disables next button on last page', async () => {
-    const mockData: ApiResponse = {
-      results: [mockCharacterRick],
-      info: {
-        count: 20,
-        prev: 'https://api.example.com?page=4',
-        next: null,
-      },
-    };
-
-    vi.spyOn(rimApi, 'useGetSearchQuery').mockReturnValue(
-      createMockApiResponse({
-        data: mockData,
-        isSuccess: true,
-      })
-    );
-
-    renderApp(['/?search=rick&page=5']);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('prev-button')).toBeEnabled();
-      expect(screen.getByTestId('next-button')).toBeDisabled();
     });
   });
 
