@@ -1,3 +1,4 @@
+'use client';
 import React, { useContext } from 'react';
 import { Theme, type searchProps } from '../../types/types';
 import styles from './Search.module.scss';

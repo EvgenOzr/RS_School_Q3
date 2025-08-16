@@ -1,3 +1,5 @@
+'use client';
+
 import Search from '../Search/Search';
 import Spinner from '../Spinner/Spinner';
 import CardList from '../CardList/CardList';
@@ -7,22 +9,22 @@ import Card from '../Card/Card';
 import MessageField from '../MessageField/MessageField';
 import { useContext, useEffect, useState } from 'react';
 import { appStateInitial } from '../../types/constants';
-import { useLocation, useNavigate } from 'react-router';
 import styles from './App.module.scss';
 import themeStyles from '../../Context/themeColor.module.scss';
 import { ThemeContext } from '../../Context/themeContext';
 import { rimApi, useGetSearchQuery } from '../../store/rimService';
 import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 const App = () => {
   const [appState, setAppState] = useState<appState>(appStateInitial);
   const [isClosedCard, setIsClosedCard] = useState(false);
   const { theme } = useContext(ThemeContext);
-  const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch();
 
-  const searchParams = new URLSearchParams(location.search);
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
   const pageQuery = searchParams.get('page') || '1';
   const { data, isFetching, isError } = useGetSearchQuery(
@@ -32,9 +34,9 @@ const App = () => {
   useEffect(() => {
     const saveSearch = localStorage.getItem('search');
     if (saveSearch) {
-      navigate(`/?search=${saveSearch}&page=1`);
+      router.push(`/?search=${saveSearch}&page=1`);
     }
-  }, [navigate]);
+  }, [router]);
 
   useEffect(() => {
     if (isError) {
@@ -57,7 +59,7 @@ const App = () => {
   }, [isFetching, data, isError, searchQuery]);
 
   const onUpdateSearch = (search: string) => {
-    navigate(`/?search=${search}&page=1`);
+    router.push(`/?search=${search}&page=1`);
     dispatch(rimApi.util.invalidateTags(['SearchResults']));
   };
 
@@ -74,7 +76,7 @@ const App = () => {
       ...prev,
       itemSelected: character,
     }));
-    navigate(
+    router.push(
       `/?search=${searchQuery}&page=${pageQuery}&details=${character.id}`
     );
   };
@@ -83,7 +85,7 @@ const App = () => {
     theme === Theme.LIGHT ? `${themeStyles.light}` : `${themeStyles.dark}`;
   return (
     <>
-      <h1 className="header">RS School. Task 3</h1>
+      <h1 className="header">RS School. Task 6. SSR</h1>
       <Search onUpdateSearch={onUpdateSearch} />
       {isFetching && <Spinner />}
       {isError && <MessageField title={'Sorry'} text={'Nothing found!'} />}
@@ -114,7 +116,7 @@ const App = () => {
         <div className={styles.pagination} data-testid="pagination">
           <button
             onClick={() =>
-              navigate(
+              router.push(
                 `/?search=${searchQuery}&page=${parseInt(pageQuery) - 1}`
               )
             }
@@ -127,7 +129,7 @@ const App = () => {
           <span className={styles.pagination_page}>Page {pageQuery}</span>
           <button
             onClick={() =>
-              navigate(
+              router.push(
                 `/?search=${searchQuery}&page=${parseInt(pageQuery) + 1}`
               )
             }

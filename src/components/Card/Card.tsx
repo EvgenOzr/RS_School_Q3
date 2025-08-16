@@ -1,9 +1,11 @@
+'use client';
 import type { cardProps } from '../../types/types';
 import styles from './Card.module.scss';
 import themeStyles from '../../Context/themeColor.module.scss';
 import { useContext } from 'react';
 import { ThemeContext } from '../../Context/themeContext';
 import { Theme } from '../../types/types';
+import Image from 'next/image';
 
 const Card = ({ card, isClosed, onClose }: cardProps) => {
   const { theme } = useContext(ThemeContext);
@@ -16,7 +18,12 @@ const Card = ({ card, isClosed, onClose }: cardProps) => {
   return (
     <div className={`${styles.card} ${newTheme}`} data-testid="character-card">
       <div className={styles.image}>
-        <img src={card.image} alt="image" />
+        <Image
+          src={card.image}
+          alt={`${card.name} image`}
+          width={50}
+          height={50}
+        />
       </div>
       <div className={styles.card_info}>
         <div className={styles.field}>Name - {card.name}</div>
