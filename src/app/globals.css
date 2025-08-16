@@ -1,6 +1,6 @@
 body {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   place-items: center;
   background-color: #8bec87;
 }

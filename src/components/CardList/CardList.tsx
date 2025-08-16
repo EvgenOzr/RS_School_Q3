@@ -1,3 +1,4 @@
+'use client';
 import { useContext, type ChangeEvent } from 'react';
 import { Theme, type cardListProps, type character } from '../../types/types';
 import styles from './CardList.module.scss';

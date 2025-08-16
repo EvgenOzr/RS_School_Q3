@@ -1,3 +1,4 @@
+'use client';
 import styles from './About.module.scss';
 import themeStyles from '../../Context/themeColor.module.scss';
 import { Theme } from '../../types/types';

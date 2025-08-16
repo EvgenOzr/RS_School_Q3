@@ -1,13 +1,14 @@
+'use client';
 import { createContext } from 'react';
 import { Theme } from '../types/types';
 
-export type themeContextType = {
+export type ThemeContextType = {
   theme: Theme;
   setTheme: (newTheme: Theme) => void;
 };
-const initialContext: themeContextType = {
+const initialContext: ThemeContextType = {
   theme: Theme.LIGHT,
   setTheme: () => {},
 };
 
-export const ThemeContext = createContext(initialContext);
+export const ThemeContext = createContext<ThemeContextType>(initialContext);
