@@ -1,12 +1,22 @@
-type AuthUser = {
-  name: string;
-  age: number;
-  email: string;
-  password: string;
-  gender: string;
-  confirm: boolean;
-  image: Blob;
-  country: string;
-};
+interface YearlyCO2 {
+  year: number;
+  population?: number;
+  co2?: number;
+  co2_per_capita?: number;
+}
 
-export type { AuthUser };
+interface CountryCO2 {
+  data: YearlyCO2[];
+  iso_code: string;
+}
+
+interface CO2Dataset {
+  [countryName: string]: CountryCO2;
+}
+
+export interface SelectedCountry {
+  name: string;
+  data: CountryCO2;
+}
+
+export type { YearlyCO2, CountryCO2, CO2Dataset };

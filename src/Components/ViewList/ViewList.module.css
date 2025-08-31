@@ -1,0 +1,69 @@
+.list_item {
+  list-style: none;
+}
+
+.view_list {
+  padding: 20px;
+}
+
+.view_list h2,
+p {
+  color: #333;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.search_input {
+  padding: 5px;
+  width: 100%;
+}
+.countries_container {
+  margin-top: 15px;
+}
+
+.country_item {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.country_item:hover {
+  background-color: #e8f4f8;
+}
+
+.country_item.selected {
+  background-color: #007acc;
+  color: white;
+}
+
+.country_name {
+  font-weight: 500;
+  color: #000;
+  flex: 1;
+}
+
+.country_code {
+  font-size: 0.9em;
+  color: #666;
+  margin: 0 10px;
+  flex-shrink: 0;
+}
+
+.country_item.selected .country_code {
+  color: #ccc;
+}
+
+.data_population {
+  font-size: 0.9em;
+  /* font-weight: 500; */
+  color: #000;
+  flex-shrink: 0;
+}
+
+.country_item.selected .data_population {
+  color: #ccc;
+}

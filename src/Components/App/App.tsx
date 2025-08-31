@@ -1,28 +1,51 @@
-import { useState } from "react";
-import { useAppSelector } from "../../store/storeHook";
-import styles from "./App.module.css";
-import Modal from "../Modal/Modal";
+import { memo, useEffect, useState } from 'react';
+import ViewList from '../ViewList/ViewList';
+import './App.css';
+import Spinner from '../Spinner/Spinner';
+import type { CO2Dataset } from '../../types/types';
 
-function App() {
-  const {} = useAppSelector((state) => state.userReducer.users);
+const App = memo(() => {
+  const [co2List, setCo2List] = useState<CO2Dataset>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [showModal, setShowModal] = useState(false);
+  useEffect(() => {
+    const fetchCO2 = async () => {
+      try {
+        const response = await fetch(
+          'https://nyc3.digitaloceanspaces.com/owid-public/data/co2/owid-co2-data.json'
+        );
+        const data: CO2Dataset = await response.json();
+        setCo2List(data);
+        console.log(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Неизвестная ошибка');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCO2();
+  }, []);
 
-  const closeModal = () => {
-    setShowModal(false);
-  };
+  if (loading) {
+    return (
+      <div>
+        <div>Loading...</div>
+        <Spinner />
+      </div>
+    );
+  }
 
+  if (error) {
+    return <div>Ошибка: {error}</div>;
+  }
   return (
-    <div className={styles.container}>
-      <div className={styles.app}>
-        <button className={styles.btn_form} onClick={() => setShowModal(true)}>
-          Modal 1
-        </button>
-        <button className={styles.btn_form}>Modal 2</button>
-        {showModal && <Modal closeModal={closeModal} />}
+    <div className="app-container">
+      <div className="sidebar">
+        <ViewList data={co2List} />
       </div>
     </div>
   );
-}
-
+});
+App.displayName = 'App';
 export default App;

@@ -1,0 +1,23 @@
+.list_data {
+  display: flex;
+}
+.country_details h2,
+p {
+  color: #333;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.table_container {
+  max-height: 350px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.show_more {
+  text-align: center;
+  color: #666;
+  margin-top: 10px;
+  font-style: italic;
+}
