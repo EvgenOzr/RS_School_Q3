@@ -67,3 +67,111 @@ p {
 .country_item.selected .data_population {
   color: #ccc;
 }
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.control_group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.select {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.sort_button {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: black;
+  cursor: pointer;
+}
+
+.column_button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.column_button:hover {
+  background: #0056b3;
+}
+
+.modal_overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.column_list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.column_title {
+  color: #000;
+}
+
+.column_checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  color: #000;
+}
+
+.modal_close {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f8f9fa;
+  cursor: pointer;
+  margin-top: 1rem;
+  color: #000;
+}
+
+.highlight {
+  animation: highlight 1s ease;
+}
+
+@keyframes highlight {
+  0% {
+    background-color: #ffff99;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
